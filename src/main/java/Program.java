@@ -1,4 +1,3 @@
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import domain.Account;
@@ -17,7 +16,7 @@ public class Program {
     private static final String[] MAIN_MENU = {"ME", "GROUP", "ACCOUNT", "LOGOUT"};
     private static final String[] USER_MENU = {"INFO", "LOGIN", "PASSWORD", "BACK"};
     private static final String[] GROUP_MENU = {"CREATE", "GET", "GETBYID", "RENAME", "DELETE", "ADDUSER", "REMOVEUSER", "BACK"};
-    private static final String[] ACCOUNT_MENU = {"CREATE", "GET", "GETBYID", "DELETE", "BACK"};
+    private static final String[] ACCOUNT_MENU = {"CREATE", "GET", "GETBYID", "RENAME", "DELETE", "BACK"};
     private static final String WELCOME_MESSAGE = "+----------------------------+\n" +
             "|      Welcome to wallet     |\n" +
             "|                            |\n" +
@@ -251,6 +250,7 @@ public class Program {
                         System.out.println("Enter new name");
                         groupName = reader.readLine();
                         groupService.renameGroup(groupId, groupName);
+                        System.out.println("Successfully renamed group");
 
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
@@ -339,6 +339,11 @@ public class Program {
 
     private void getAccountMenu() throws IOException {
         String answer;
+        Long accountId;
+        Long groupId;
+        String accountName;
+        Double startBalance;
+        boolean confirmation;
 
         while (true) {
             printPath();
@@ -348,16 +353,16 @@ public class Program {
 
                 case "create":
                     System.out.println("Enter account name:");
-                    String name = reader.readLine();
+                    accountName = reader.readLine();
 
                     try {
                         System.out.println("Enter account start balance");
-                        Double startBalance = Double.valueOf(reader.readLine());
+                        startBalance = Double.valueOf(reader.readLine());
 
                         System.out.println("Enter group id");
-                        Long groupId = Long.valueOf(reader.readLine());
+                        groupId = Long.valueOf(reader.readLine());
 
-                        Account account = accountService.create(name, startBalance, groupId);
+                        Account account = accountService.create(accountName, startBalance, groupId);
                         System.out.println("Account successfully created with id = " + account.getId());
                     }
                     catch (Exception e) {
@@ -376,9 +381,22 @@ public class Program {
                 case "getbyid":
                     System.out.println("Enter account id");
                     try {
-                        Long id = Long.valueOf(reader.readLine());
+                        accountId = Long.valueOf(reader.readLine());
 
-                        System.out.println(this.mapper.writeValueAsString(accountService.findById(id)));
+                        System.out.println(this.mapper.writeValueAsString(accountService.findById(accountId)));
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+                    break;
+
+                case "rename":
+                    try {
+                        System.out.println("Enter account id");
+                        accountId = Long.valueOf(reader.readLine());
+                        System.out.println("Enter new name");
+                        accountName = reader.readLine();
+                        accountService.renameAccount(accountId, accountName);
+                        System.out.println("Successfully renamed account");
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
                     }
@@ -388,7 +406,6 @@ public class Program {
                     System.out.println("Enter account id");
                     try {
                         Long id = Long.valueOf(reader.readLine());
-                        boolean confirmation;
                         while (true) {
                             System.out.println("Do you really want to delete an account? y/n");
                             String bool = reader.readLine();

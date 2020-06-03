@@ -44,4 +44,15 @@ public class AccountService {
     public Account findById(Long id) {
         return accountDao.findById(id);
     }
+
+    public void renameAccount(Long accountId, String newName) {
+        Account accountDB = accountDao.findById(accountId);
+
+        if (accountDB == null) {
+            throw new NullPointerException("There is no account with this id");
+        }
+
+        accountDB.setName(newName);
+        accountDao.update(accountDB, accountDB.getId());
+    }
 }

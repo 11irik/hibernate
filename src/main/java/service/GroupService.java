@@ -53,6 +53,10 @@ public class GroupService {
 
     public void renameGroup(Long id, String newName) {
         Group groupDB = groupDao.findById(id);
+        if (groupDB == null) {
+            throw new NullPointerException("There is no group with this id");
+        }
+
         groupDB.setName(newName);
 
         groupDao.update(groupDB, groupDB.getId());
