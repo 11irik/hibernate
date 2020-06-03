@@ -18,6 +18,8 @@
     <mapping class="domain.BaseEntity"/>
     <mapping class="domain.User"/>
     <mapping class="domain.Group"/>
+    <mapping class="domain.Account"/>
+
 
 
   </session-factory>

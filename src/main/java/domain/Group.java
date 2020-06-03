@@ -6,6 +6,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.util.HashSet;
 import java.util.Set;
@@ -18,6 +19,9 @@ public class Group extends BaseEntity{
 
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<User> users = new HashSet<>();
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "group")
+    private Set<Account> accounts = new HashSet<>();
 
     public Group() {
     }
@@ -36,5 +40,13 @@ public class Group extends BaseEntity{
 
     public void setUsers(Set<User> users) {
         this.users = users;
+    }
+
+    public Set<Account> getAccounts() {
+        return accounts;
+    }
+
+    public void setAccounts(Set<Account> accounts) {
+        this.accounts = accounts;
     }
 }

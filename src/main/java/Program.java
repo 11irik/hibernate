@@ -1,7 +1,9 @@
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import domain.Account;
 import domain.Group;
+import service.AccountService;
 import service.GroupService;
 import service.UserService;
 import java.io.BufferedReader;
@@ -24,6 +26,7 @@ public class Program {
 
     private UserService userService;
     private GroupService groupService;
+    private AccountService accountService;
 
     private Boolean loggedIn;
     private String login;
@@ -35,6 +38,7 @@ public class Program {
 
         this.userService = new UserService();
         this.groupService = new GroupService();
+        this.accountService = new AccountService();
 
         this.loggedIn = false;
         this.login = "";
@@ -123,13 +127,13 @@ public class Program {
                 break;
 
             case "group":
-                getGroupMenu();
                 printGroupMenu();
+                getGroupMenu();
                 break;
 
             case "account":
-                getAccountMenu();
                 printAccountMenu();
+                getAccountMenu();
                 break;
 
             case "logout":
@@ -263,15 +267,27 @@ public class Program {
             switch (answer) {
 
                 case "create":
-                    System.out.println("Enter group name:");
+                    System.out.println("Enter account name:");
                     String name = reader.readLine();
-                    Group group = groupService.create(name);
-                    System.out.println("Group successfully created with id = " + group.getId());
+
+                    try {
+                        System.out.println("Enter account start balance");
+                        Double startBalance = Double.valueOf(reader.readLine());
+
+                        System.out.println("Enter group id");
+                        Long groupId = Long.valueOf(reader.readLine());
+
+                        Account account = accountService.create(name, startBalance, groupId);
+                        System.out.println("Account successfully created with id = " + account.getId());
+                    }
+                    catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
                     break;
 
                 case "get":
                     try {
-                        System.out.println(this.mapper.writeValueAsString(groupService.findAll()));
+                        System.out.println(this.mapper.writeValueAsString(accountService.findAll()));
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
                     }
@@ -282,7 +298,7 @@ public class Program {
                     try {
                         Long id = Long.valueOf(reader.readLine());
 
-                        System.out.println(this.mapper.writeValueAsString(groupService.findById(id)));
+                        System.out.println(this.mapper.writeValueAsString(accountService.findById(id)));
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
                     }
@@ -294,7 +310,7 @@ public class Program {
                         Long id = Long.valueOf(reader.readLine());
                         boolean confirmation;
                         while (true) {
-                            System.out.println("Do you really want to delete a group? y/n");
+                            System.out.println("Do you really want to delete an account? y/n");
                             String bool = reader.readLine();
                             if ("y".equals(bool)) {
                                 confirmation = true;
@@ -306,7 +322,7 @@ public class Program {
                         }
 
                         if (confirmation) {
-                            groupService.delete(id);
+                            accountService.delete(id);
                             System.out.println("Account successfully deleted");
                         }
                     } catch (Exception e) {
