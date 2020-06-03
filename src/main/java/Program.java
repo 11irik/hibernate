@@ -16,7 +16,7 @@ public class Program {
     private static final String[] LOGIN_MENU = {"LOGIN", "REGISTER", "EXIT"};
     private static final String[] MAIN_MENU = {"ME", "GROUP", "ACCOUNT", "LOGOUT"};
     private static final String[] USER_MENU = {"INFO", "LOGIN", "PASSWORD", "BACK"};
-    private static final String[] GROUP_MENU = {"CREATE", "GET", "GETBYID", "DELETE", "ADDUSER", "REMOVEUSER", "BACK"};
+    private static final String[] GROUP_MENU = {"CREATE", "GET", "GETBYID", "RENAME", "DELETE", "ADDUSER", "REMOVEUSER", "BACK"};
     private static final String[] ACCOUNT_MENU = {"CREATE", "GET", "GETBYID", "DELETE", "BACK"};
     private static final String WELCOME_MESSAGE = "+----------------------------+\n" +
             "|      Welcome to wallet     |\n" +
@@ -218,6 +218,10 @@ public class Program {
 
     private void getGroupMenu() throws IOException {
         String answer;
+        String groupName;
+        Long groupId;
+        Long userId;
+        Group group;
 
         while (true) {
             printPath();
@@ -227,8 +231,8 @@ public class Program {
 
                 case "create":
                     System.out.println("Enter group name:");
-                    String name = reader.readLine();
-                    Group group = groupService.create(name);
+                    groupName = reader.readLine();
+                    group = groupService.create(groupName);
                     System.out.println("Group successfully created with id = " + group.getId());
                     break;
 
@@ -240,12 +244,25 @@ public class Program {
                     }
                     break;
 
+                case "rename":
+                    try {
+                        System.out.println("Enter group id");
+                        groupId = Long.valueOf(reader.readLine());
+                        System.out.println("Enter new name");
+                        groupName = reader.readLine();
+                        groupService.renameGroup(groupId, groupName);
+
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+                    break;
+
                 case "getbyid":
                     System.out.println("Enter group id");
                     try {
-                        Long id = Long.valueOf(reader.readLine());
+                        groupId = Long.valueOf(reader.readLine());
 
-                        System.out.println(this.mapper.writeValueAsString(groupService.findById(id)));
+                        System.out.println(this.mapper.writeValueAsString(groupService.findById(groupId)));
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
                     }
@@ -254,10 +271,10 @@ public class Program {
                 case "adduser":
                     try {
                         System.out.println("Enter group id");
-                        Long groupId = Long.valueOf(reader.readLine());
+                        groupId = Long.valueOf(reader.readLine());
 
                         System.out.println("Enter user id");
-                        Long userId = Long.valueOf(reader.readLine());
+                        userId = Long.valueOf(reader.readLine());
 
                         groupService.addUser(groupId, userId);
 
@@ -269,10 +286,10 @@ public class Program {
                 case "removeuser":
                     try {
                         System.out.println("Enter group id");
-                        Long groupId = Long.valueOf(reader.readLine());
+                        groupId = Long.valueOf(reader.readLine());
 
                         System.out.println("Enter user id");
-                        Long userId = Long.valueOf(reader.readLine());
+                        userId = Long.valueOf(reader.readLine());
 
                         groupService.removeUser(groupId, userId);
 
@@ -284,7 +301,7 @@ public class Program {
                 case "delete":
                     System.out.println("Enter group id");
                     try {
-                        Long id = Long.valueOf(reader.readLine());
+                        groupId = Long.valueOf(reader.readLine());
                         boolean confirmation;
                         while (true) {
                             System.out.println("Do you really want to delete a group? y/n");
@@ -299,7 +316,7 @@ public class Program {
                         }
 
                         if (confirmation) {
-                            groupService.delete(id);
+                            groupService.delete(groupId);
                             System.out.println("Group successfully deleted");
                         }
                     } catch (Exception e) {

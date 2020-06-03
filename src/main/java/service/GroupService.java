@@ -51,6 +51,13 @@ public class GroupService {
         groupDao.update(groupDB, groupId);
     }
 
+    public void renameGroup(Long id, String newName) {
+        Group groupDB = groupDao.findById(id);
+        groupDB.setName(newName);
+
+        groupDao.update(groupDB, groupDB.getId());
+    }
+
     public List<Group> findAll() {
         return groupDao.findAll();
     }
