@@ -45,6 +45,7 @@ public class UserDao {
             User userDb = (User) session.get(User.class, id);
             if (user.getId() == id) {
                 userDb.setLogin(user.getLogin());
+                userDb.setPassword(user.getPassword());
             }
             session.update(userDb);
             tx.commit();

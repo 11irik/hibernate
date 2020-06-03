@@ -41,8 +41,23 @@ public class UserService {
         return BCryptUtility.verifyHash(password, usersDb.get(0).getPassword());
     }
 
-    public void updateUser(User user, Long id) {
-        userDao.update(user, id);
+    public void updateLogin(String oldLogin, String newLogin) {
+        User userDB = userDao.findByLogin(oldLogin).get(0);
+        if (userDao.findByLogin(newLogin).size() > 0) {
+            throw new EntityExistsException("This login is taken. Please choose another one");
+        }
+        userDB.setLogin(newLogin);
+        userDao.update(userDB, userDB.getId());
+    }
+
+    public void updatePassword(String login, String password, String rePassword) throws PasswordMatchException {
+        if (!password.equals(rePassword)) {
+            throw new PasswordMatchException("Passwords don't match");
+        }
+
+        User userDB = userDao.findByLogin(login).get(0);
+        userDB.setPassword(BCryptUtility.hash(password));
+        userDao.update(userDB, userDB.getId());
     }
 
     public List<User> findAll() {

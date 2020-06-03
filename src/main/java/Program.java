@@ -9,11 +9,13 @@ import service.UserService;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Stack;
 
 
 public class Program {
     private static final String[] LOGIN_MENU = {"LOGIN", "REGISTER", "EXIT"};
     private static final String[] MAIN_MENU = {"ME", "GROUP", "ACCOUNT", "LOGOUT"};
+    private static final String[] USER_MENU = {"INFO", "LOGIN", "PASSWORD", "BACK"};
     private static final String[] GROUP_MENU = {"CREATE", "GET", "GETBYID", "DELETE", "ADDUSER", "REMOVEUSER", "BACK"};
     private static final String[] ACCOUNT_MENU = {"CREATE", "GET", "GETBYID", "DELETE", "BACK"};
     private static final String WELCOME_MESSAGE = "+----------------------------+\n" +
@@ -28,6 +30,7 @@ public class Program {
     private GroupService groupService;
     private AccountService accountService;
 
+    private Stack<String> path;
     private Boolean loggedIn;
     private String login;
 
@@ -40,6 +43,8 @@ public class Program {
         this.groupService = new GroupService();
         this.accountService = new AccountService();
 
+        this.path = new Stack<>();
+        this.path.push("wallet>");
         this.loggedIn = false;
         this.login = "";
     }
@@ -54,6 +59,7 @@ public class Program {
 
         String answer;
         while (true) {
+            program.printPath();
             answer = program.reader.readLine().toLowerCase();
 
             if ("exit".equals(answer)) {
@@ -123,17 +129,24 @@ public class Program {
         switch (answer) {
 
             case "me":
-                getMe();
+                printUserMenu();
+                path.push("user>");
+                getUserMenu();
+                path.pop();
                 break;
 
             case "group":
                 printGroupMenu();
+                path.push("group>");
                 getGroupMenu();
+                path.pop();
                 break;
 
             case "account":
                 printAccountMenu();
+                path.push("account>");
                 getAccountMenu();
+                path.pop();
                 break;
 
             case "logout":
@@ -151,14 +164,63 @@ public class Program {
         }
     }
 
-    private void getMe() throws JsonProcessingException {
-        System.out.println(this.mapper.writeValueAsString(userService.findByLogin(this.login)));
+    private void getUserMenu() throws IOException {
+        String answer;
+
+        while (true) {
+            printPath();
+            answer = reader.readLine().toLowerCase();
+
+            switch (answer) {
+
+                case "info":
+                    System.out.println(this.mapper.writeValueAsString(userService.findByLogin(this.login)));
+                    break;
+
+                case "login":
+                    try {
+                        System.out.println("Enter new login");
+                        String newLogin = reader.readLine();
+                        userService.updateLogin(this.login, newLogin);
+                        this.login = newLogin;
+                        System.out.println("Login successfully changed");
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+                    break;
+
+                case "password":
+                    try {
+                        System.out.println("Enter new password");
+                        String newPassword = reader.readLine();
+                        System.out.println("Re-enter new password");
+                        String reNewPassword = reader.readLine();
+
+                        userService.updatePassword(this.login, newPassword, reNewPassword);
+                        System.out.println("Password successfully changed");
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+                    break;
+
+                case "help":
+                    printUserMenu();
+                    break;
+
+                case "back":
+                    return;
+
+                default:
+                    System.out.println("Wrong input. Enter 'help' for info");
+            }
+        }
     }
 
     private void getGroupMenu() throws IOException {
         String answer;
 
         while (true) {
+            printPath();
             answer = reader.readLine().toLowerCase();
 
             switch (answer) {
@@ -262,6 +324,7 @@ public class Program {
         String answer;
 
         while (true) {
+            printPath();
             answer = reader.readLine().toLowerCase();
 
             switch (answer) {
@@ -343,6 +406,12 @@ public class Program {
         }
     }
 
+    private void printPath() {
+        for (String line : path) {
+            System.out.print(line + ">");
+        }
+    }
+
     private void printWelcomeMessage() {
         System.out.println(WELCOME_MESSAGE);
     }
@@ -355,6 +424,12 @@ public class Program {
 
     private void printMainMenu() {
         for (String line : MAIN_MENU) {
+            System.out.println("---" + line);
+        }
+    }
+
+    private void printUserMenu() {
+        for (String line : USER_MENU) {
             System.out.println("---" + line);
         }
     }
