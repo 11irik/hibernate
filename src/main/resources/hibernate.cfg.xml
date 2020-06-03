@@ -12,7 +12,7 @@
     <property name="hibernate.connection.password">123</property>
     <property name="hibernate.connection.url">jdbc:postgresql://localhost:5432/hibernate</property>
 
-    <property name="hbm2ddl.auto">create</property>
+    <property name="hbm2ddl.auto">update</property>
     <property name="show_sql">true</property>
 
     <mapping class="domain.BaseEntity"/>

@@ -1,7 +1,6 @@
 package repository;
 
 import domain.User;
-import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -12,11 +11,10 @@ import utility.HibernateUtility;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserDao implements Dao<User> {
+public class UserDao {
 
     private SessionFactory sessionFactory;
 
@@ -24,7 +22,7 @@ public class UserDao implements Dao<User> {
         sessionFactory = HibernateUtility.getSessionFactory();
     }
 
-    public Serializable create(User user) {
+    public User create(User user) {
         Transaction tx = null;
 
         try (Session session = sessionFactory.openSession()) {
@@ -116,6 +114,7 @@ public class UserDao implements Dao<User> {
             query.where(builder.equal(root.get("login"), login));
 
             users = session.createQuery(query).getResultList();
+            users.forEach(user -> user.getGroups());
             transaction.commit();
         } catch (Exception e) {
             e.printStackTrace();

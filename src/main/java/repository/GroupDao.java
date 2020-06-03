@@ -5,20 +5,22 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 import utility.HibernateUtility;
 
-import java.io.Serializable;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.util.List;
 
-public class GroupDao implements Dao<Group> {
+public class GroupDao {
     private SessionFactory sessionFactory;
 
     public GroupDao() {
         this.sessionFactory =  HibernateUtility.getSessionFactory();
     }
 
-    @Override
-    public Serializable create(Group group) {
+    public Group create(Group group) {
         Transaction tx = null;
 
         try (Session session = sessionFactory.openSession()) {
@@ -33,23 +35,67 @@ public class GroupDao implements Dao<Group> {
         return group;
     }
 
-    @Override
     public void update(Group entity, Long id) {
+        Transaction tx = null;
 
+        try (Session session = sessionFactory.openSession()) {
+            tx = session.beginTransaction();
+            Group groupDB = (Group) session.get(Group.class, id);
+            if (groupDB.getId() == id) {
+                groupDB.setName(entity.getName());
+                groupDB.setUsers(entity.getUsers());
+            }
+            session.update(groupDB);
+            tx.commit();
+        } catch (HibernateException e) {
+            if (tx != null) tx.rollback();
+            e.printStackTrace();
+        }
     }
 
-    @Override
     public Group findById(Long id) {
-        return null;
+        Session session = sessionFactory.openSession();
+
+        Group groupDB = session.get(Group.class, id);
+        session.close();
+
+        return groupDB;
     }
 
-    @Override
     public void delete(Long id) {
+        Transaction tx = null;
 
+        try (Session session = sessionFactory.openSession()) {
+            tx = session.beginTransaction();
+            Group groupDB = session.get(Group.class, id);
+            session.delete(groupDB);
+            tx.commit();
+        } catch (HibernateException e) {
+            if (tx != null) tx.rollback();
+            e.printStackTrace();
+        }
     }
 
-    @Override
     public List<Group> findAll() {
-        return null;
+        Transaction transaction = null;
+        List<Group> groups = null;
+
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
+
+            CriteriaBuilder builder = session.getCriteriaBuilder();
+            CriteriaQuery<Group> query = builder.createQuery(Group.class);
+            Root<Group> root = query.from(Group.class);
+            query.select(root);
+            Query<Group> q = session.createQuery(query);
+            groups = q.getResultList();
+            transaction.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (transaction != null) {
+                transaction.rollback();
+            }
+        }
+        return groups;
     }
 }
