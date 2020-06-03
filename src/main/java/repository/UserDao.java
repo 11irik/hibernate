@@ -13,6 +13,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao implements Dao<User> {
@@ -28,9 +29,7 @@ public class UserDao implements Dao<User> {
 
         try (Session session = sessionFactory.openSession()) {
             tx = session.beginTransaction();
-
             session.save(user);
-
             tx.commit();
         } catch (HibernateException e) {
             if (tx != null) tx.rollback();
@@ -45,15 +44,11 @@ public class UserDao implements Dao<User> {
 
         try (Session session = sessionFactory.openSession()) {
             tx = session.beginTransaction();
-
             User userDb = (User) session.get(User.class, id);
-
             if (user.getId() == id) {
                 userDb.setLogin(user.getLogin());
             }
-
             session.update(userDb);
-
             tx.commit();
         } catch (HibernateException e) {
             if (tx != null) tx.rollback();
@@ -84,46 +79,51 @@ public class UserDao implements Dao<User> {
         }
     }
 
-        public List<User> findAll() {
-                Transaction transaction = null;
-                List<User> users = null;
+    public List<User> findAll() {
+        Transaction transaction = null;
+        List<User> users = null;
 
-                try (Session session = sessionFactory.openSession()) {
-                    transaction = session.beginTransaction();
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
 
-                    CriteriaBuilder builder = session.getCriteriaBuilder();
-                    CriteriaQuery<User> query = builder.createQuery(User.class);
-                    Root<User> root = query.from(User.class);
-                    query.select(root);
-                    Query<User> q = session.createQuery(query);
-                    users = q.getResultList();
-                    transaction.commit();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    if (transaction != null) {
-                        transaction.rollback();
-                    }
-                }
-                return users;
+            CriteriaBuilder builder = session.getCriteriaBuilder();
+            CriteriaQuery<User> query = builder.createQuery(User.class);
+            Root<User> root = query.from(User.class);
+            query.select(root);
+            Query<User> q = session.createQuery(query);
+            users = q.getResultList();
+            transaction.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (transaction != null) {
+                transaction.rollback();
+            }
+        }
+        return users;
     }
 
-//    public List<User> findAll() {
-//        Session session = sessionFactory.openSession();
-//        Transaction tx = null;
-//        List<User> users = null;
-//
-//        try {
-//            tx = session.beginTransaction();
-//            users = (List<User>)session.createQuery("FROM User").list();//fixme
-//            tx.commit();
-//
-//        } catch (HibernateException e) {
-//            if (tx!=null) tx.rollback();
-//            e.printStackTrace();
-//        } finally {
-//            session.close();
-//        }
-//
-//        return users;
-//    }
+    public List<User> findByLogin(String login) {
+        Transaction transaction = null;
+        List<User> users = new ArrayList<>();
+
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
+
+            CriteriaBuilder builder = session.getCriteriaBuilder();
+            CriteriaQuery<User> query = builder.createQuery(User.class);
+            Root<User> root = query.from(User.class);
+
+            query.where(builder.equal(root.get("login"), login));
+
+            users = session.createQuery(query).getResultList();
+            transaction.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (transaction != null) {
+                transaction.rollback();
+            }
+        }
+
+        return users;
+    }
 }

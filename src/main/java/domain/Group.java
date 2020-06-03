@@ -14,7 +14,7 @@ import java.util.Set;
 
 @Entity
 @Data
-@Table(name = "grp")
+@Table(name = "grop")
 public class Group extends BaseEntity{
 
     private String name;

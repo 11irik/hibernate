@@ -23,9 +23,7 @@ public class GroupDao implements Dao<Group> {
 
         try (Session session = sessionFactory.openSession()) {
             tx = session.beginTransaction();
-
             session.save(group);
-
             tx.commit();
         } catch (HibernateException e) {
             if (tx != null) tx.rollback();
