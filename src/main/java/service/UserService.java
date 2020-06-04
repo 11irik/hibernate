@@ -31,14 +31,16 @@ public class UserService {
         return (User) userDao.create(user);
     }
 
-    public Boolean login(String login, String password) {
+    public void login(String login, String password) {
         List<User> usersDb = userDao.findByLogin(login);
 
         if (usersDb.size() == 0) {
             throw new NullPointerException("There's no user with such login");
         }
 
-        return BCryptUtility.verifyHash(password, usersDb.get(0).getPassword());
+        if (!BCryptUtility.verifyHash(password, usersDb.get(0).getPassword())) {
+            throw new NullPointerException("Wrong password");
+        }
     }
 
     public void updateLogin(String oldLogin, String newLogin) {

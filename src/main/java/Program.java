@@ -2,10 +2,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import domain.Account;
 import domain.Group;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
 import service.AccountService;
 import service.GroupService;
 import service.UserService;
+
 import java.io.BufferedReader;
+import java.io.Console;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Stack;
@@ -36,6 +40,7 @@ public class Program {
 
     public Program() {
         this.reader = new BufferedReader(new InputStreamReader(System.in));
+
         this.mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
 
         this.userService = new UserService();
@@ -47,7 +52,6 @@ public class Program {
         this.loggedIn = false;
         this.login = "";
     }
-
 
 
     public static void main(String[] args) throws IOException {
@@ -74,7 +78,6 @@ public class Program {
     }
 
 
-
     private void getAuth(String answer) throws IOException {
 
         String login;
@@ -90,8 +93,9 @@ public class Program {
                 password = reader.readLine();
 
                 try {
-                    loggedIn = userService.login(login, password);
+                    userService.login(login, password);
                     this.login = login;
+                    this.loggedIn = true;
                     System.out.println("You successfully logged in");
                     printMainMenu();
                     return;
@@ -364,8 +368,7 @@ public class Program {
 
                         Account account = accountService.create(accountName, startBalance, groupId);
                         System.out.println("Account successfully created with id = " + account.getId());
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         System.out.println(e.getMessage());
                     }
                     break;
