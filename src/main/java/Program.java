@@ -2,17 +2,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import domain.Account;
 import domain.Group;
-import org.jline.reader.LineReader;
-import org.jline.reader.LineReaderBuilder;
 import service.AccountService;
 import service.GroupService;
 import service.UserService;
 
 import java.io.BufferedReader;
-import java.io.Console;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Stack;
+import java.util.logging.Level;
 
 
 public class Program {
@@ -55,6 +53,7 @@ public class Program {
 
 
     public static void main(String[] args) throws IOException {
+        java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.OFF);
         Program program = new Program();
 
         program.printWelcomeMessage();
@@ -281,6 +280,7 @@ public class Program {
                         userId = Long.valueOf(reader.readLine());
 
                         groupService.addUser(groupId, userId);
+                        System.out.println("User successfully added");
 
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
@@ -296,6 +296,7 @@ public class Program {
                         userId = Long.valueOf(reader.readLine());
 
                         groupService.removeUser(groupId, userId);
+                        System.out.println("User successfully removed");
 
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
